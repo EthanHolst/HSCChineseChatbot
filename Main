@@ -1,0 +1,13 @@
+import jieba
+
+def tokenisation():
+    input = "我一边打篮球一边告诉我的中文老师"
+    tokenise = jieba.cut(input, cut_all=True)
+    segmented = "/ ".join(tokenise)
+
+    inputSplit = []
+    inputSplit.append(segmented.split("/"))
+    print(inputSplit[0])
+
+tokenisation()
+
