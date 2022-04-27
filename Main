@@ -1,13 +1,34 @@
 import jieba
+import json
 
-def tokenisation():
-    input = "我一边打篮球一边告诉我的中文老师"
+def tokenisation(input):
     tokenise = jieba.cut(input, cut_all=True)
     segmented = "/ ".join(tokenise)
 
     inputSplit = []
     inputSplit.append(segmented.split("/"))
-    print(inputSplit[0])
 
-tokenisation()
+    return inputSplit
 
+def comparisonScoring(userResponse):
+    userInput = tokenisation(userResponse)
+    relevancyScore = 0
+
+    # file = open("TrainingData.txt", "r+")
+    # for line in file:
+
+    # file.close()
+
+
+
+# Potential Things to be added:
+# 1. Takes a database of replies to a certain question that admins can select as appropriate or not, which is then used to score the user responses based off keywords, length etc. 
+#    Can also send this feedback to the user that wrote the repsponse for the reason it was selected as inappropriate
+# 2. Sorts the responses in text files/ other appropriate databases by keywords and original questions, making the search for comparable texts more resource efficient and quick
+
+
+# testData = "我很喜欢我的妈妈和我的爸爸"
+# print(tokenisation(testData))
+
+# file = open('TrainingData.json')
+# data = json.load(file)
