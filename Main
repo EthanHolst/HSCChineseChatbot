@@ -1,6 +1,8 @@
 import jieba
 import json
 
+# testData = "我很喜欢我的妈妈和我的爸爸"
+
 def tokenisation(input):
     tokenise = jieba.cut(input, cut_all=True)
     segmented = "/ ".join(tokenise)
@@ -10,9 +12,17 @@ def tokenisation(input):
 
     return inputSplit
 
-def comparisonScoring(userResponse):
-    userInput = tokenisation(userResponse)
+def comparisonScoring(Response):
+    tokenisedInp = tokenisation(Response)
+    followupQes = ["你喜欢什么中学课吗?", "为什么你选了你的课吗?"]
     relevancyScore = 0
+
+    for i in followupQes:
+        tokenisedQes = tokenisation(followupQes[i])
+        for j in tokenisedInp:
+            if tokenisedInp[i] == tokenisedQes[j]:
+                
+
 
     # file = open("TrainingData.txt", "r+")
     # for line in file:
