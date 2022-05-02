@@ -4,35 +4,44 @@ import re
 import jieba
 import json
 
-# testData = "我很喜欢我的妈妈和我的爸爸"
+testData = "我有很多好的中学课"
 
 def tokenise(input):
     tokenise = jieba.cut(input, cut_all=True)
-    segmented = "/ ".join(tokenise)
+    segmented = "/".join(tokenise)
 
-    inputSplit = []
-    inputSplit.append(segmented.split("/"))
-
+    inputSplit = segmented.split("/")
     return inputSplit
 
 def comparisonScoring(Response):
     tokenisedInp = tokenise(Response)
-    followupQes = ["你喜欢什么中学课吗?", "为什么你选了你的课吗?"] #stub for database
+    followupQes = ["你喜欢什么中学课吗?", "为什么你选了你的课吗?"] # stub for database
 
-    relevancyCount = 0
     relevancyArray = []
-
-    for i in followupQes:
+    i = 0
+    while i < len(followupQes):
         tokenisedQes = tokenise(followupQes[i])
-        # Need a function to strip filler pronouns/grammar items/particles to make the process more accurate
-        for j in tokenisedInp:
-            if tokenisedInp[i] == tokenisedQes[j]:
-                relevancyCount = relevancyCount + 1
+        # Need a function to strip filler pronouns/grammar items/particles/repeating tokens to make the process more accurate
+        relevancyCount = 0
+        l = 0
+        while l < len(tokenisedQes):
+            j = 0
+            while j < len(tokenisedInp):
+                if tokenisedInp[j] == tokenisedQes[l]:
+                    relevancyCount = relevancyCount + 1
+                    print(relevancyCount)
+                j = j + 1
 
-    relevancyScore = relevancyCount/tokenisedInp
-    relevancyArray.append(relevancyScore)
+            relevancyScore = relevancyCount/len(tokenisedInp)
+            relevancyArray.append(relevancyScore)
+            l = l + 1
+        print("The relevancy score for the", i, "iteration is:", relevancyScore)
+        i = i + 1
 
+    return relevancyArray
 
+# print(tokenise(testData))
+comparisonScoring(testData)
                 
 
 
@@ -50,4 +59,3 @@ def comparisonScoring(Response):
 
 
 # testData = "我很喜欢我的妈妈和我的爸爸"
-# print(tokenise(testData))
