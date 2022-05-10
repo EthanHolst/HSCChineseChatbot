@@ -2,11 +2,22 @@ import jieba
 import math
 import sqlite3
 import os
+import random
 
 path = os.path.dirname(os.path.abspath(__file__))
 DBpath = os.path.join(path, 'QuestionDatabase.db')
 
-stubInput = "我有很多好的学校课，我很喜欢我的老师们。"
+def userInput():
+    print("------------------------")
+    print(retrieveCategories())
+    Category = input("Please input the CategoryID of what the category question you would like: ")
+    
+
+    randIndex = random.randint(0, len(retrieveOriginalQes())-1)
+    randomOriginalQ = retrieveOriginalQes()
+    print(randomOriginalQ[randIndex][0])
+    Input = input("Please input your response: ")
+    followupApproximation(Input, Category)
 
 def roundUp(n, decimals=0):
     multiplier = 10 ** decimals
@@ -20,17 +31,6 @@ def tokenise(input):
 
     return inputSplit
 
-def retrieveFollowup(categorySelection):
-    conn = sqlite3.connect(DBpath)
-    cursor = conn.cursor()
-
-    code = ('SELECT QuestionText from FollowupQuestions WHERE Category = {id}').format(id = categorySelection)
-    cursor.execute(code)
-    followupQuestions = cursor.fetchall()
-    cursor.close()
-
-    return followupQuestions
-
 
 def retrieveCategories():
     conn = sqlite3.connect(DBpath)
@@ -41,6 +41,27 @@ def retrieveCategories():
     cursor.close()
 
     return categories
+
+def retrieveOriginalQes():
+    conn = sqlite3.connect(DBpath)
+    cursor = conn.cursor() 
+
+    cursor.execute('SELECT QuestionText from OriginalQuestions')
+    questions = cursor.fetchall()
+    cursor.close()
+
+    return questions
+
+def retrieveFollowup(categorySelection):
+    conn = sqlite3.connect(DBpath)
+    cursor = conn.cursor()
+
+    code = ('SELECT QuestionText from FollowupQuestions WHERE Category = {id}').format(id = categorySelection)
+    cursor.execute(code)
+    followupQuestions = cursor.fetchall()
+    cursor.close()
+
+    return followupQuestions
 
 
 def followupRelevancy(userInput, category):
@@ -84,7 +105,7 @@ def followupApproximation(userInput, category):
     followupQes = retrieveFollowup(category)
     print(followupQes[i][0], "Is the most accurate followup with a score of", relevancyArray[i])
 
-followupApproximation(stubInput, 1)
+userInput()
 
 """ 
 APPLICATION PROGRESSION PLAN
