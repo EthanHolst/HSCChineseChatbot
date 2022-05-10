@@ -3,9 +3,6 @@ import math
 import sqlite3
 import os
 
-# import userClasses
-# import classMethods
-
 path = os.path.dirname(os.path.abspath(__file__))
 DBpath = os.path.join(path, 'QuestionDatabase.db')
 
@@ -15,15 +12,6 @@ def roundUp(n, decimals=0):
     multiplier = 10 ** decimals
     return math.ceil(n * multiplier) / multiplier
 
-def retrieveFollowup():
-    conn = sqlite3.connect(DBpath)
-    cursor = conn.cursor() 
-    cursor.execute('SELECT QuestionText from FollowupQuestions')
-    followupQuestions = cursor.fetchall()
-    cursor.close()
-
-    return followupQuestions
-
 def tokenise(input):
     tokenise = jieba.cut(input, cut_all=True)
     segmented = "/".join(tokenise)
@@ -32,15 +20,37 @@ def tokenise(input):
 
     return inputSplit
 
-def followupRelevancy(userInput):
+def retrieveFollowup(categorySelection):
+    conn = sqlite3.connect(DBpath)
+    cursor = conn.cursor()
+
+    code = ('SELECT QuestionText from FollowupQuestions WHERE Category = {id}').format(id = categorySelection)
+    cursor.execute(code)
+    followupQuestions = cursor.fetchall()
+    cursor.close()
+
+    return followupQuestions
+
+
+def retrieveCategories():
+    conn = sqlite3.connect(DBpath)
+    cursor = conn.cursor() 
+
+    cursor.execute('SELECT CategoryID, CategoryName from Categories')
+    categories = cursor.fetchall()
+    cursor.close()
+
+    return categories
+
+
+def followupRelevancy(userInput, category):
     tokenisedInp = tokenise(userInput)
-    followupQes = retrieveFollowup()
+    followupQes = retrieveFollowup(category)
     relevancyScoreArray = []
    
     i = 0
     while i < len(followupQes):
         tokenisedQes = tokenise(followupQes[i][0])
-        print(tokenisedQes)
         relevancyCount = 0
        
         l = 0
@@ -50,22 +60,35 @@ def followupRelevancy(userInput):
             while j < len(tokenisedInp):
                 if tokenisedInp[j] == tokenisedQes[l]:
                     relevancyCount = relevancyCount + 1
-                    print(relevancyCount)
                 j = j + 1
 
             l = l + 1
         relevancyScore = relevancyCount/len(tokenisedInp)
         relevancyScoreArray.append(roundUp(relevancyScore, 3))
 
-        print("The relevancy score for the", i, "th iteration is:", relevancyScore)
+        print("The relevancy score for array index", i, "is:", relevancyScore)
         i = i + 1
 
     return relevancyScoreArray
 
+def followupApproximation(userInput, category):
+    relevancyArray = followupRelevancy(userInput, category)
+    maxRelevancy = max(relevancyArray)
+    i = 0
+    while i < len(relevancyArray):
+        if (maxRelevancy == relevancyArray[i]):
+            break
+
+        i = i + 1
+        
+    followupQes = retrieveFollowup(category)
+    print(followupQes[i][0], "Is the most accurate followup with a score of", relevancyArray[i])
+
+followupApproximation(stubInput, 1)
 
 """ 
 APPLICATION PROGRESSION PLAN
-User functionality : 
+User functionality :
 1. choice of what main question to start with
 2. give input 
 3. retrieve highest possible relevency response for followup questions under that category
