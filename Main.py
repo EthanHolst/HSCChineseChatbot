@@ -1,4 +1,3 @@
-from ast import Or
 import jieba
 import math
 import sqlite3
@@ -109,8 +108,7 @@ def followupApproximation(category):
                 i = i + 1
 
             print(followupQes[i][0], "    RS(", relevancyArray[i],")")
-
-userInput()
+            
 """ 
 APPLICATION PROGRESSION PLAN
 User functionality :
@@ -124,17 +122,6 @@ Educator functionality :
 1. can add followup questions to the database or update tags of existing ones
 2. can flag to remove or existing questions
 """
-
-
-
-
-# if using synonyms: https://github.com/chatopera/Synonyms
-# Potential Things to be added:
-# 1. Takes a database of replies to a certain question that teachers can select as appropriate or not, which is then used to score the user responses based off keywords, length etc. 
-#    Can also send this feedback to the user that wrote the repsponse for the reason it was selected as inappropriate
-# 2. Sorts the responses in text files/ other appropriate databases by keywords and original questions, making the search for comparable texts more resource efficient and quick
-
-
 # Fong additions
 # validation - capture those errors 
 # explore capturing the inputs and questions each session and send a log to the class teacher#

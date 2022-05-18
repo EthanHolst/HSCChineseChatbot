@@ -15,3 +15,14 @@ def addFollowup(Text, Cat):
     cursor.execute("insert into FollowupQuestions (QuestionID, QuestionText, Category) values (?, ?, ?)", (QuesID, Text, Cat))
     conn.commit()
     cursor.close()
+
+def removeFollowup(QuestionID):
+    conn = sqlite3.connect(db)
+    cursor = conn.cursor() 
+
+    code = ('DELETE FROM FollowupQuestions WHERE QuestionID = {id}').format(id = QuestionID)
+    cursor.execute(code)
+
+    cursor.close()
+
+removeFollowup(10)
