@@ -1,3 +1,4 @@
+from ast import Or
 import jieba
 import math
 import sqlite3
@@ -8,16 +9,13 @@ path = os.path.dirname(os.path.abspath(__file__))
 DBpath = os.path.join(path, 'QuestionDatabase.db')
 
 def userInput():
-    print("------------------------")
+    """ Retrieves categories from DB.
+    """
+    print("")
     print(retrieveCategories())
-    Category = input("Please input the CategoryID of what the category question you would like: ")
-    
-
-    randIndex = random.randint(0, len(retrieveOriginalQes())-1)
-    randomOriginalQ = retrieveOriginalQes()
-    print(randomOriginalQ[randIndex][0])
-    Input = input("Please input your response: ")
-    followupApproximation(Input, Category)
+    Category = input("Please input the CategoryID of what the category question you would like: ") 
+    print(retrieveOriginalQes(Category))
+    followupApproximation(Category)
 
 def roundUp(n, decimals=0):
     multiplier = 10 ** decimals
@@ -31,7 +29,6 @@ def tokenise(input):
 
     return inputSplit
 
-
 def retrieveCategories():
     conn = sqlite3.connect(DBpath)
     cursor = conn.cursor() 
@@ -42,15 +39,17 @@ def retrieveCategories():
 
     return categories
 
-def retrieveOriginalQes():
+def retrieveOriginalQes(category):
     conn = sqlite3.connect(DBpath)
     cursor = conn.cursor() 
 
-    cursor.execute('SELECT QuestionText from OriginalQuestions')
+    code = ('SELECT ALL QuestionText from OriginalQuestions WHERE Category = {id}').format(id = category)
+    cursor.execute(code)
     questions = cursor.fetchall()
     cursor.close()
 
-    return questions
+    randIndex = random.randint(0, len(questions)-1)
+    return questions[randIndex][0]
 
 def retrieveFollowup(categorySelection):
     conn = sqlite3.connect(DBpath)
@@ -62,7 +61,6 @@ def retrieveFollowup(categorySelection):
     cursor.close()
 
     return followupQuestions
-
 
 def followupRelevancy(userInput, category):
     tokenisedInp = tokenise(userInput)
@@ -92,21 +90,27 @@ def followupRelevancy(userInput, category):
 
     return relevancyScoreArray
 
-def followupApproximation(userInput, category):
-    relevancyArray = followupRelevancy(userInput, category)
-    maxRelevancy = max(relevancyArray)
-    i = 0
-    while i < len(relevancyArray):
-        if (maxRelevancy == relevancyArray[i]):
-            break
+def followupApproximation(category):
+    continueQ = True
+    while continueQ == True:
+        userInput = input("Please input your response (\"Stop\" to finish): ")
+        if (userInput == "stop" or userInput == "STOP" or userInput == "Stop"):
+            continueQ = False
 
-        i = i + 1
-        
-    followupQes = retrieveFollowup(category)
-    print(followupQes[i][0], "Is the most accurate followup with a score of", relevancyArray[i])
+        else:
+            relevancyArray = followupRelevancy(userInput, category)
+            followupQes = retrieveFollowup(category)
+
+            maxRelevancy = max(relevancyArray)
+            i = 0
+            while i < len(relevancyArray)-1:
+                if (maxRelevancy == relevancyArray[i]):
+                    break
+                i = i + 1
+
+            print(followupQes[i][0], "    RS(", relevancyArray[i],")")
 
 userInput()
-
 """ 
 APPLICATION PROGRESSION PLAN
 User functionality :
@@ -129,3 +133,9 @@ Educator functionality :
 # 1. Takes a database of replies to a certain question that teachers can select as appropriate or not, which is then used to score the user responses based off keywords, length etc. 
 #    Can also send this feedback to the user that wrote the repsponse for the reason it was selected as inappropriate
 # 2. Sorts the responses in text files/ other appropriate databases by keywords and original questions, making the search for comparable texts more resource efficient and quick
+
+
+# Fong additions
+# validation - capture those errors 
+# explore capturing the inputs and questions each session and send a log to the class teacher#
+
