@@ -7,9 +7,11 @@ import random
 path = os.path.dirname(os.path.abspath(__file__))
 DBpath = os.path.join(path, 'QuestionDatabase.db')
 
-def userInput():
-    """ Retrieves categories from DB.
+def temp_mainline():
+    """ 
+    Retrieves categories from DB.
     """
+    
     print("")
     print(retrieveCategories())
     Category = input("Please input the CategoryID of what the category question you would like: ") 
@@ -109,6 +111,7 @@ def followupApproximation(category):
 
             print(followupQes[i][0], "    RS(", relevancyArray[i],")")
             
+
 """ 
 APPLICATION PROGRESSION PLAN
 User functionality :

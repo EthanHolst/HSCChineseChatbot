@@ -66,3 +66,5 @@ def signup(email, username, password):
         cursor.execute("INSERT INTO Accounts (Email, Username, Password, AccountType) values (?, ?, ?)", (email, username, password))
         cursor.close()
 
+def test():
+    print("#3")
