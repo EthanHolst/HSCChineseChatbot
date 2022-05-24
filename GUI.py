@@ -1,36 +1,30 @@
+from tkinter import *
 import os
-import gooeypie as gp
-import os
+ 
+root = Tk()
+root.title("HSC Chinese Conversation Bot")
+root.geometry("400x250")
+root.eval('tk::PlaceWindow . center')
+ 
+def sign_up():
+    root.withdraw()
 
-app = gp.GooeyPieApp('HSC ChineseChatbot - Login and Signup')
+    global screen_signup
+    screen_signup = Toplevel()
+    screen_signup.title("HSC Chinese Conversation Bot - Sign Up")
+    screen_signup.geometry("400x400")
+    screen_signup.deiconify()
+ 
+def log_in():
+    root.withdraw()
 
-def login_screen_1():
-    screen = gp.Window(app, "Login")
-    screen.set_size(500, 500)
-    screen.set_resizable(False)
+    global screen_login
+    screen_login = Toplevel()
+    screen_login.title("HSC Chinese Conversation Bot - Log In")
+    screen_login.geometry("400x400")
+    screen_login.deiconify()
 
-    # path = os.path.dirname(os.path.abspath(__file__))
-    # icon_path = os.path.join(path, 'Chinese_Flag.png')
-    # screen.set_icon(icon_path)
-
-    signup_btn = gp.Button(screen, 'Sign up', signup_screen)
-    login_btn = gp.Button(screen, 'Log in', login_screen_2)
-
-    screen.set_grid(2, 1)
-    screen.add(signup_btn, 1, 1, align='center', valign='bottom', margins=['auto', 'auto', 20, 'auto'])
-    screen.add(login_btn, 2, 1, align='center', valign='top', margins=[20, 'auto', 'auto', 'auto'])
-
-    screen.show()
-    app.run()
-
-
-def login_screen_2(event):
-    login = gp.Window(app, "Login")
-    login.show()
-    login.set_size(500, 500)
-    login.set_resizable(False)
-
-def signup_screen(event):
-    print("hello")
-
-login_screen_1()
+Button(root, text="Log In", command=log_in).pack(pady=10)
+Button(root, text="Sign Up", command=sign_up).pack(pady=10)
+ 
+root.mainloop()
