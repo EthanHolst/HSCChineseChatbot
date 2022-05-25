@@ -1,17 +1,22 @@
+from encodings import utf_8
 import jieba
 import math
 import sqlite3
 import os
 import random
+import json
+from datetime import datetime
 
 path = os.path.dirname(os.path.abspath(__file__))
 DBpath = os.path.join(path, 'QuestionDatabase.db')
+txt_path = os.path.join(path, 'chatLog.txt')
 
-def temp_mainline():
-    """ 
-    Retrieves categories from DB.
-    """
+def userInput():
+    log_path = os.path.join(path, 'chatLog.txt')
+    if os.path.exists(log_path):
+        os.remove(log_path)
     
+    """ Retrieves categories from DB. """
     print("")
     print(retrieveCategories())
     Category = input("Please input the CategoryID of what the category question you would like: ") 
@@ -110,7 +115,22 @@ def followupApproximation(category):
                 i = i + 1
 
             print(followupQes[i][0], "    RS(", relevancyArray[i],")")
-            
+
+def createLog(input_type, input):
+    now = datetime.now()
+    current_time = now.strftime("%D - %H:%M")
+
+    with open(txt_path, 'a', encoding="utf_8") as file:
+        text = ("(" + current_time + ") | " + input_type + ": " + input)
+        file.write(text)
+        file.write('\n')
+
+def sendLogEmail():
+    with open(txt_path, 'r', encoding="utf_8") as file:
+            data = file.readlines()
+    
+
+
 
 """ 
 APPLICATION PROGRESSION PLAN
@@ -125,6 +145,7 @@ Educator functionality :
 1. can add followup questions to the database or update tags of existing ones
 2. can flag to remove or existing questions
 """
+
 # Fong additions
 # validation - capture those errors 
 # explore capturing the inputs and questions each session and send a log to the class teacher#
