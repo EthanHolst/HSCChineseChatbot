@@ -1,11 +1,11 @@
-from numpy import character
 import win32com.client as win32
 import sqlite3
 import os
 from datetime import datetime
+import globals
 
-#stub
-userID = 2
+globals.initialise()
+userID = globals.num
 
 path = os.path.dirname(os.path.abspath(__file__))
 DBpath = os.path.join(path, 'QuestionDatabase.db')
@@ -44,6 +44,3 @@ def send_log_to_teacher():
     Please find the attatched log below
     """
     mail.Send()
-
-
-send_log_to_teacher()
