@@ -41,8 +41,7 @@ def login(username, password):
             accountFound = True
             break
         i = i + 1
-    if accountFound == False:
-            print("stub: account does not exist or password is incorrect")
+    return accountFound
 
 def signup(email, username, password):
     connect = sqlite3.connect(DBpath)
@@ -65,6 +64,3 @@ def signup(email, username, password):
         cursor = connect.cursor() 
         cursor.execute("INSERT INTO Accounts (Email, Username, Password, AccountType) values (?, ?, ?)", (email, username, password))
         cursor.close()
-
-def test():
-    print("#3")

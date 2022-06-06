@@ -1,41 +1,61 @@
-from tkinter import *
-import os
+import tkinter
+import tkinter.messagebox
+import customtkinter
 
-root = Tk()
-root.title("HSC Chinese Conversation Bot")
-root.resizable(False, False)
+customtkinter.set_appearance_mode("dark")  # Modes: "System" (standard), "Dark", "Light"
+customtkinter.set_default_color_theme("blue")  # Themes: "blue" (standard), "green", "dark-blue"
 
-MyLeftPos = (root.winfo_screenwidth() - 500) / 2
-myTopPos = (root.winfo_screenheight() - 300) / 2
-root.geometry( "%dx%d+%d+%d" % (500, 300, MyLeftPos, myTopPos))
+app = customtkinter.CTk()
+app.geometry("400x580")
+app.title("CustomTkinter simple_example.py")
 
 
-def sign_up():
-    root.withdraw()
+def button_callback():
+    print("Button click", combobox_1.get())
 
-    global screen_signup
-    screen_signup = Toplevel()
-    screen_signup.title("HSC Chinese Conversation Bot - Sign Up")
-    screen_signup.geometry("400x400")
-    screen_signup.resizable(False, False)
 
-    screen_signup.deiconify()
- 
-def log_in():
-    root.withdraw()
+def slider_callback(value):
+    progressbar_1.set(value)
 
-    global screen_login
-    screen_login = Toplevel()
-    screen_login.title("HSC Chinese Conversation Bot - Log In")
-    screen_login.geometry("400x400")
-    screen_login. resizable(False, False)
+frame_1 = customtkinter.CTkFrame(master=app)
+frame_1.pack(pady=20, padx=60, fill="both", expand=True)
 
-    screen_login.deiconify()
+label_1 = customtkinter.CTkLabel(master=frame_1, justify=tkinter.LEFT)
+label_1.pack(pady=12, padx=10)
 
-btn_login = Button(root, text="Log In", command=log_in, relief=GROOVE).pack()
-btn_signup = Button(root, text="Sign Up", command=sign_up, relief=GROOVE).pack()
+progressbar_1 = customtkinter.CTkProgressBar(master=frame_1)
+progressbar_1.pack(pady=12, padx=10)
 
-# btn_signup.grid(column=1, row=1)
-# btn_signup.grid(column=1, row=2)
- 
-root.mainloop()
+button_1 = customtkinter.CTkButton(master=frame_1, command=button_callback)
+button_1.pack(pady=12, padx=10)
+
+slider_1 = customtkinter.CTkSlider(master=frame_1, command=slider_callback, from_=0, to=1)
+slider_1.pack(pady=12, padx=10)
+slider_1.set(0.5)
+
+entry_1 = customtkinter.CTkEntry(master=frame_1, placeholder_text="CTkEntry")
+entry_1.pack(pady=12, padx=10)
+
+optionmenu_1 = customtkinter.CTkOptionMenu(frame_1, values=["Option 1", "Option 2", "Option 42"])
+optionmenu_1.pack(pady=12, padx=10)
+optionmenu_1.set("CTkOptionMenu")
+
+combobox_1 = customtkinter.CTkComboBox(frame_1, values=["Option 1", "Option 2", "Option 42"])
+combobox_1.pack(pady=12, padx=10)
+optionmenu_1.set("CTkComboBox")
+
+checkbox_1 = customtkinter.CTkCheckBox(master=frame_1)
+checkbox_1.pack(pady=12, padx=10)
+
+radiobutton_var = tkinter.IntVar(value=1)
+
+radiobutton_1 = customtkinter.CTkRadioButton(master=frame_1, variable=radiobutton_var, value=1)
+radiobutton_1.pack(pady=12, padx=10)
+
+radiobutton_2 = customtkinter.CTkRadioButton(master=frame_1, variable=radiobutton_var, value=2)
+radiobutton_2.pack(pady=12, padx=10)
+
+switch_1 = customtkinter.CTkSwitch(master=frame_1)
+switch_1.pack(pady=12, padx=10)
+
+app.mainloop()

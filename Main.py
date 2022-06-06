@@ -4,12 +4,13 @@ import math
 import sqlite3
 import os
 import random
-import json
 from datetime import datetime
 
 path = os.path.dirname(os.path.abspath(__file__))
 DBpath = os.path.join(path, 'QuestionDatabase.db')
 txt_path = os.path.join(path, 'chatLog.txt')
+
+user_stub = "Mark Hall"
 
 def userInput():
     log_path = os.path.join(path, 'chatLog.txt')
@@ -118,7 +119,7 @@ def followupApproximation(category):
 
 def createLog(input_type, input):
     now = datetime.now()
-    current_time = now.strftime("%D - %H:%M")
+    current_time = now.strftime("%H:%M")
 
     with open(txt_path, 'a', encoding="utf_8") as file:
         text = ("(" + current_time + ") | " + input_type + ": " + input)
@@ -130,8 +131,7 @@ def sendLogEmail():
             data = file.readlines()
     
 
-
-
+sendLogEmail()
 """ 
 APPLICATION PROGRESSION PLAN
 User functionality :
