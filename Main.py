@@ -6,15 +6,11 @@ import os
 import random
 from datetime import datetime
 
-import emailClient
-import globals
-
-globals.initialise()
-userID = globals.num
-
 path = os.path.dirname(os.path.abspath(__file__))
 DBpath = os.path.join(path, 'QuestionDatabase.db')
 txt_path = os.path.join(path, 'chatLog.txt')
+
+user_stub = "Mark Hall"
 
 def userInput():
     log_path = os.path.join(path, 'chatLog.txt')
@@ -131,8 +127,18 @@ def createLog(input_type, input):
         file.write('\n')
 
 def sendLogEmail():
-    emailClient.send_log_to_teacher()
+    with open(txt_path, 'r', encoding="utf_8") as file:
+            data = file.readlines()
+    #Cleansing and formatting data
+    for i in data:
+        i = (i[0:len(i)-2])
     
+    #Sending data
+    
+    for i in data:
+        print(i)
+
+userInput
 """ 
 APPLICATION PROGRESSION PLAN
 User functionality :

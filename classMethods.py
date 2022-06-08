@@ -81,3 +81,61 @@ def signup(email, username, password):
         cursor.close()
 
     return accountFound
+
+def signup_secondary(account_type, schoolID, teacher):
+        conn = sqlite3.connect(DBpath)
+        cursor = conn.cursor() 
+        if teacher != 0:
+            cursor.execute(("UPDATE Accounts SET AccountType = '{AccountType}', School = {schID} , TeacherID = {tchID} WHERE AccountID = {id}").format(id = globals.num, AccountType = account_type, schID = schoolID, tchID = teacher))
+        else:
+            cursor.execute(("UPDATE Accounts SET AccountType = '{AccountType}', School = {schID} WHERE AccountID = {id}").format(id = globals.num, AccountType = account_type, schID = schoolID))
+        conn.commit()
+        cursor.close()
+
+def retrieve_schools():
+    connect = sqlite3.connect(DBpath)
+    cursor = connect.cursor()
+
+    cursor.execute('SELECT SchoolName FROM Schools')
+    schools = cursor.fetchall()
+    cursor.close()
+
+    schools_clean = ["Select..."]
+    for i in schools:
+        schools_clean.append(i[0])
+        
+    return schools_clean
+
+def retrieve_teachers(schoolName):
+    connect = sqlite3.connect(DBpath)
+    cursor = connect.cursor()
+    cursor.execute(('SELECT SchoolID FROM Schools WHERE SchoolName = "{name}"').format(name=schoolName))
+    schoolID = cursor.fetchall()
+
+    cursor.execute(('SELECT Username FROM Accounts WHERE School = {id} AND AccountType = "Teacher"').format(id = schoolID[0][0]))
+    teachers = cursor.fetchall()
+    cursor.close()
+
+    teachers_clean = ["Select..."]
+    for i in teachers:
+        teachers_clean.append(i[0])
+        
+    return teachers_clean
+
+def retrieve_userID(userName):
+    connect = sqlite3.connect(DBpath)
+    cursor = connect.cursor()
+    cursor.execute(('SELECT AccountID FROM Accounts WHERE Username = "{name}"').format(name=userName))
+    userID = cursor.fetchall()
+    cursor.close()
+
+    return userID[0][0]
+
+def retrieve_schoolID(schoolName):
+    connect = sqlite3.connect(DBpath)
+    cursor = connect.cursor()
+    cursor.execute(('SELECT SchoolID FROM Schools WHERE SchoolName = "{name}"').format(name=schoolName))
+    schoolID = cursor.fetchall()
+    cursor.close()
+
+    return schoolID[0][0]
