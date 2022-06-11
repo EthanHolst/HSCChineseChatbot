@@ -138,7 +138,6 @@ def sendLogEmail():
     for i in data:
         print(i)
 
-userInput
 """ 
 APPLICATION PROGRESSION PLAN
 User functionality :

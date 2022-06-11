@@ -32,7 +32,9 @@ def login_screen():
         else:
             account_found = classMethods.login(inp_username.get(), inp_password.get())
             if account_found == True:
-                print("STUB: HOME SCREEN")
+                app.withdraw()
+                home_screen()
+                globals.num = classMethods.retrieve_userID(inp_username.get())
             else:
                 lbl_error.configure(text="Account not found, please try again")
                 inp_username.delete(0, "end")
@@ -205,11 +207,85 @@ def home_screen():
     home_screen = customtkinter.CTkToplevel(master=app)
     home_screen.geometry("780x520")
     home_screen.resizable(False, False)
-    home_screen.title("HSC Chinese Chatbot - Sign Up")
+    home_screen.title("HSC Chinese Chatbot - Main Menu")
 
-    frame_1 = customtkinter.CTkFrame(master=home_screen)
-    frame_1.pack(pady=20, padx=20, fill="both", expand=True)
+    home_screen.grid_columnconfigure(1, weight=1)
+    home_screen.grid_rowconfigure(0, weight=1)
 
-    home_screen
+    frame_left = customtkinter.CTkFrame(master=home_screen,
+                                                width=180,
+                                                corner_radius=0)
+    frame_left.grid(row=0, column=0, sticky="nswe")
+
+    frame_right = customtkinter.CTkFrame(master=home_screen)
+    frame_right.grid(row=0, column=1, sticky="nswe", padx=20, pady=20)
+
+    # ============= methods ==============
+    global current_screen
+    current_screen = 0
+
+    def event_chatbot():
+        global current_screen
+        if current_screen == 0:
+            lbl_error.configure(text="Already on")
+            box_textbox.insert('end', "Hello everybody, 发比武i奶u覅u哎u封闭u怕")
+        elif current_screen == 1:
+            lbl_error.configure(text="> Chatbot")
+            current_screen = 0
+
+    def event_change_account_details():
+        global current_screen
+        if current_screen == 1 :
+            lbl_error.configure(text="Already on")
+        elif current_screen == 0:
+            lbl_error.configure(text="> Details")
+            current_screen = 1
+
+    # ============ frames ============
+
+    frame_left.grid_rowconfigure(0, minsize=10)
+    frame_left.grid_rowconfigure(5, weight=1)
+    frame_left.grid_rowconfigure(8, minsize=20)  
+    frame_left.grid_rowconfigure(11, minsize=10)
+
+    frame_right.rowconfigure((0, 1, 2, 3), weight=1)
+    frame_right.rowconfigure(7, weight=10)
+    frame_right.columnconfigure((0, 1), weight=1)
+    frame_right.columnconfigure(2, weight=0)
+
+    lbl_title = customtkinter.CTkLabel(master=frame_left,
+                                                text="HSC 中文聊天机",
+                                                text_font=("Roboto Medium", -16))
+    lbl_title.grid(row=1, column=0, pady=10, padx=10)
+
+    btn_chatbot = customtkinter.CTkButton(master=frame_left,
+                                        text="Chatbot",
+                                        fg_color=("gray75", "gray30"),
+                                        command=event_chatbot)
+    btn_chatbot.grid(row=2, column=0, pady=10, padx=20)
+
+    btn_change_details = customtkinter.CTkButton(master=frame_left,
+                                                text="Change details",
+                                                fg_color=("gray75", "gray30"),
+                                                command=event_change_account_details)
+    btn_change_details.grid(row=3, column=0, pady=10, padx=20)
+
+    lbl_error = customtkinter.CTkLabel(master=frame_left,
+                                        text="",
+                                        text_font=("Roboto Medium", -8))
+    lbl_error.grid(row=8, column=0, pady=10, padx=10)
+
+    box_textbox = Text(master=frame_right,
+                wrap='word',
+                state='disabled',background="gray30", 
+                foreground="green")
+    box_textbox.grid(row=0, column=0, columnspan=1, pady=20, padx=20)
+
+    inp_chatbot = customtkinter.CTkEntry(master=frame_right,
+                                            width=120,
+                                            placeholder_text="Input")
+    inp_chatbot.grid(row=8, column=0, columnspan=1, pady=20, padx=40, sticky="we")
+
+    home_screen.mainloop()
 
 home_screen()
