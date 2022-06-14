@@ -226,20 +226,25 @@ def home_screen():
 
     def event_chatbot():
         global current_screen
-        if current_screen == 0:
-            lbl_error.configure(text="Already on")
-            box_textbox.insert('end', "Hello everybody, 发比武i奶u覅u哎u封闭u怕")
-        elif current_screen == 1:
-            lbl_error.configure(text="> Chatbot")
+        if current_screen == 1:
+            btn_chatbot.configure(state=DISABLED)
+            btn_change_details.configure(state=NORMAL)
             current_screen = 0
+            btn_chatbot.configure(fg_color="#395e9c")
+            btn_change_details.configure(fg_color="#3d3d3d")
+            box_textbox.grid()
+            inp_chatbot.grid()
 
     def event_change_account_details():
         global current_screen
-        if current_screen == 1 :
-            lbl_error.configure(text="Already on")
-        elif current_screen == 0:
-            lbl_error.configure(text="> Details")
+        if current_screen == 0 :
+            btn_change_details.configure(state=DISABLED)
+            btn_chatbot.configure(state=NORMAL)
             current_screen = 1
+            btn_chatbot.configure(fg_color="#3d3d3d")
+            btn_change_details.configure(fg_color="#395e9c")
+            box_textbox.grid_remove()
+            inp_chatbot.grid_remove()
 
     # ============ frames ============
 
@@ -260,8 +265,9 @@ def home_screen():
 
     btn_chatbot = customtkinter.CTkButton(master=frame_left,
                                         text="Chatbot",
-                                        fg_color=("gray75", "gray30"),
-                                        command=event_chatbot)
+                                        fg_color="#395e9c",
+                                        command=event_chatbot,
+                                        state=DISABLED)
     btn_chatbot.grid(row=2, column=0, pady=10, padx=20)
 
     btn_change_details = customtkinter.CTkButton(master=frame_left,
