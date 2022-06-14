@@ -100,7 +100,7 @@ def retrieve_schools():
     schools = cursor.fetchall()
     cursor.close()
 
-    schools_clean = ["Select..."]
+    schools_clean = ["Select school"]
     for i in schools:
         schools_clean.append(i[0])
         
@@ -116,7 +116,7 @@ def retrieve_teachers(schoolName):
     teachers = cursor.fetchall()
     cursor.close()
 
-    teachers_clean = ["Select..."]
+    teachers_clean = ["Select teacher"]
     for i in teachers:
         teachers_clean.append(i[0])
         
