@@ -10,8 +10,6 @@ path = os.path.dirname(os.path.abspath(__file__))
 DBpath = os.path.join(path, 'QuestionDatabase.db')
 txt_path = os.path.join(path, 'chatLog.txt')
 
-user_stub = "Mark Hall"
-
 def userInput():
     log_path = os.path.join(path, 'chatLog.txt')
     if os.path.exists(log_path):

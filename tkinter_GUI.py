@@ -227,7 +227,6 @@ def home_screen():
 
             btn_chatbot.configure(state=DISABLED, fg_color="#395e9c")
             btn_change_details.configure(state=NORMAL, fg_color="#3d3d3d")
-            frame_details.grid_remove()
             frame_chatbot.grid()
 
     def event_change_account_details():
@@ -240,11 +239,8 @@ def home_screen():
             btn_change_details.configure(state=DISABLED, fg_color="#395e9c")
             btn_chatbot.configure(state=NORMAL, fg_color="#3d3d3d")
             frame_chatbot.grid_remove()
-            frame_details.grid()
+            sc_details()
 
-            lbl_details.place(relx=0.5, rely=0.2, anchor=CENTER)
-            opt_accountType.place(relx=0.5, rely=0.4, anchor=CENTER)
-            
     frame_menu = customtkinter.CTkFrame(master=home_screen, width=180, corner_radius=0)
     frame_menu.grid(row=0, column=0, sticky="nswe")
     frame_menu.grid_rowconfigure(0, minsize=10)
@@ -290,95 +286,90 @@ def home_screen():
     inp_chatbot.grid(row=8, column=0, columnspan=1, pady=20, padx=40, sticky="we")
 
     # ===== FRAME - DETAILS =====
-    frame_details = customtkinter.CTkFrame(master=home_screen)
-    frame_details.grid(row=0, column=1, sticky="nswe", padx=20, pady=20)
-    frame_details.grid_remove()
-    frame_details.rowconfigure((0, 1, 2, 3), weight=1)
-    frame_details.rowconfigure(7, weight=10)
-    frame_details.columnconfigure((0, 1), weight=1)
-    frame_details.columnconfigure(2, weight=0)
 
-    def account_type_change(choice):
-        if choice != "Select type":
-            opt_accountType.configure(state=DISABLED)
-            opt_schools.place(relx=0.5, rely=0.5, anchor=CENTER)
-            lbl_error.configure(text="")
-        else:
-            lbl_error.configure(text="Please select a valid option")
+    def sc_details():
+        frame_details = customtkinter.CTkFrame(master=home_screen)
+        frame_details.grid(row=0, column=1, sticky="nswe", padx=20, pady=20)
+        frame_details.rowconfigure((0, 1, 2, 3), weight=1)
+        frame_details.rowconfigure(7, weight=10)
+        frame_details.columnconfigure((0, 1), weight=1)
+        frame_details.columnconfigure(2, weight=0)
 
-    def school_change(choice):
-        if choice != "Select school":
-            opt_schools.configure(state=DISABLED)
-            if opt_accountType.get() == "Student":
-                opt_teachers.place(relx=0.5, rely=0.6, anchor=CENTER)
-                opt_teachers.configure(values=classMethods.retrieve_teachers(choice), state=NORMAL)
-            else:
-                btn_signup.place(relx=0.5, rely=0.8, anchor=CENTER)
+        def account_type_change(choice):
+            if choice != "Select type":
+                opt_accountType.configure(state=DISABLED)
+                opt_schools.place(relx=0.5, rely=0.5, anchor=CENTER)
                 lbl_error.configure(text="")
-        else:
-            lbl_error.configure(text="Please select a valid option")
+            else:
+                lbl_error.configure(text="Please select a valid option")
 
-    def teacher_change(choice):
-        if choice != "Select teacher":
-            opt_teachers.configure(state=DISABLED)
-            lbl_error.configure(text="") 
-            if opt_accountType.get() == "Student":
-                btn_signup.place(relx=0.5, rely=0.8, anchor=CENTER)
-        else:
-            lbl_error.configure(text="Please select a valid option")
+        def school_change(choice):
+            if choice != "Select school":
+                opt_schools.configure(state=DISABLED)
+                if opt_accountType.get() == "Student":
+                    opt_teachers.place(relx=0.5, rely=0.6, anchor=CENTER)
+                    opt_teachers.configure(values=classMethods.retrieve_teachers(choice), state=NORMAL)
+                else:
+                    btn_signup.place(relx=0.5, rely=0.8, anchor=CENTER)
+                    lbl_error.configure(text="")
+            else:
+                lbl_error.configure(text="Please select a valid option")
 
-    def button_signup():
-        print("Pressed")
-        account_type = opt_accountType.get()
-        school = classMethods.retrieve_schoolID(opt_schools.get())
-        if account_type == "Student":
-            teacher = classMethods.retrieve_userID(opt_teachers.get())
-            classMethods.signup_secondary(account_type, school, teacher)
-        else:
-            classMethods.signup_secondary(account_type, school, 0)
+        def teacher_change(choice):
+            if choice != "Select teacher":
+                opt_teachers.configure(state=DISABLED)
+                lbl_error.configure(text="") 
+                if opt_accountType.get() == "Student":
+                    btn_signup.place(relx=0.5, rely=0.8, anchor=CENTER)
+            else:
+                lbl_error.configure(text="Please select a valid option")
+
+        def button_signup():
+            print("Pressed")
+            account_type = opt_accountType.get()
+            school = classMethods.retrieve_schoolID(opt_schools.get())
+            if account_type == "Student":
+                teacher = classMethods.retrieve_userID(opt_teachers.get())
+                classMethods.signup_secondary(account_type, school, teacher)
+            else:
+                classMethods.signup_secondary(account_type, school, 0)
+            
+            global current_screen
+            current_screen = 0
+            btn_chatbot.configure(state=DISABLED, fg_color="#395e9c")
+            btn_change_details.configure(state=NORMAL, fg_color="#3d3d3d")
+            frame_chatbot.grid()
+            frame_details.destroy()
         
-        global current_screen
-        current_screen = 0
-        frame_details.grid_remove()
-        frame_chatbot.grid()
-        btn_chatbot.configure(state=DISABLED, fg_color="#395e9c")
-        btn_change_details.configure(state=NORMAL, fg_color="#3d3d3d")
+        lbl_details = customtkinter.CTkLabel(master=frame_details, text="Change Account Details", text_font=('Arial',15, BOLD))
+        lbl_details.place(relx=0.5, rely=0.2, anchor=CENTER)
 
-        lbl_details.destroy()
-        opt_accountType.destroy()
-        opt_schools.destroy()
-        opt_teachers.destroy()
-        btn_signup.destroy()
-    
-    lbl_details = customtkinter.CTkLabel(master=frame_details, text="Change Account Details", text_font=('Arial',15, BOLD))
-    # lbl_details.place(relx=0.5, rely=0.2, anchor=CENTER)
+        opt_accountType= customtkinter.CTkOptionMenu(master=frame_details,
+                                            values=["Select type","Student", "Teacher"],
+                                            command=account_type_change,
+                                            bg_color="#292929",
+                                            width=220)
+        opt_accountType.place(relx=0.5, rely=0.4, anchor=CENTER)
 
-    opt_accountType= customtkinter.CTkOptionMenu(master=frame_details,
-                                        values=["Select type","Student", "Teacher"],
-                                        command=account_type_change,
-                                        bg_color="#292929",
-                                        width=220)
-    # opt_accountType.place(relx=0.5, rely=0.4, anchor=CENTER)
+        schools = classMethods.retrieve_schools()
+        opt_schools= customtkinter.CTkOptionMenu(master=frame_details,
+                                            values=schools,
+                                            command=school_change,
+                                            bg_color="#292929",
+                                            width=220)
 
-    schools = classMethods.retrieve_schools()
-    opt_schools= customtkinter.CTkOptionMenu(master=frame_details,
-                                        values=schools,
-                                        command=school_change,
-                                        bg_color="#292929",
-                                        width=220)
+        opt_teachers= customtkinter.CTkOptionMenu(master=frame_details,
+                                            values=["Select teacher"],
+                                            command=teacher_change,
+                                            bg_color="#292929",
+                                            width=220,)
 
-    opt_teachers= customtkinter.CTkOptionMenu(master=frame_details,
-                                        values=["Select teacher"],
-                                        command=teacher_change,
-                                        bg_color="#292929",
-                                        width=220,)
+        btn_signup = customtkinter.CTkButton(master=frame_details, command=button_signup, text="Change Details")
 
-    btn_signup = customtkinter.CTkButton(master=frame_details, command=button_signup, text="Change Details")
+        lbl_error = customtkinter.CTkLabel(master=frame_details, text="", text_font=('Arial',10))
+        lbl_error.place(relx=0.5, rely=0.9, anchor=CENTER)
 
-    lbl_error = customtkinter.CTkLabel(master=frame_details, text="", text_font=('Arial',10))
-    lbl_error.place(relx=0.5, rely=0.9, anchor=CENTER)
-
-
+        return frame_details
     home_screen.mainloop()
 
 home_screen()
