@@ -1,26 +1,29 @@
-from encodings import utf_8
+from cgitb import text
 import jieba
 import math
 import sqlite3
 import os
 import random
 from datetime import datetime
+import io
 
 path = os.path.dirname(os.path.abspath(__file__))
 DBpath = os.path.join(path, 'QuestionDatabase.db')
 txt_path = os.path.join(path, 'chatLog.txt')
 
 def userInput():
-    log_path = os.path.join(path, 'chatLog.txt')
-    if os.path.exists(log_path):
-        os.remove(log_path)
-    
+    clear_existing_log()
     """ Retrieves categories from DB. """
     print("")
     print(retrieveCategories())
     Category = input("Please input the CategoryID of what the category question you would like: ") 
     print(retrieveOriginalQes(Category))
     followupApproximation(Category)
+
+def clear_existing_log():
+    log_path = os.path.join(path, 'chatLog.txt')
+    if os.path.exists(log_path):
+        os.remove(log_path)
 
 def roundUp(n, decimals=0):
     multiplier = 10 ** decimals
@@ -95,61 +98,39 @@ def followupRelevancy(userInput, category):
 
     return relevancyScoreArray
 
-def followupApproximation(category):
-    continueQ = True
-    while continueQ == True:
-        userInput = input("Please input your response (\"Stop\" to finish): ")
-        if (userInput == "stop" or userInput == "STOP" or userInput == "Stop"):
-            continueQ = False
+def followupApproximation(userInput, category):
+    relevancyArray = followupRelevancy(userInput, category)
+    followupQes = retrieveFollowup(category)
 
-        else:
-            relevancyArray = followupRelevancy(userInput, category)
-            followupQes = retrieveFollowup(category)
+    maxRelevancy = max(relevancyArray)
+    i = 0
+    while i < len(relevancyArray)-1:
+        if (maxRelevancy == relevancyArray[i]):
+            break
+        i = i + 1
 
-            maxRelevancy = max(relevancyArray)
-            i = 0
-            while i < len(relevancyArray)-1:
-                if (maxRelevancy == relevancyArray[i]):
-                    break
-                i = i + 1
-
-            print(followupQes[i][0], "    RS(", relevancyArray[i],")")
+    print(followupQes[i][0], "    RS(", relevancyArray[i],")")
+    return followupQes[i][0]
 
 def createLog(input_type, input):
     now = datetime.now()
     current_time = now.strftime("%H:%M")
 
     with open(txt_path, 'a', encoding="utf_8") as file:
-        text = ("(" + current_time + ") | " + input_type + ": " + input)
-        file.write(text)
-        file.write('\n')
-
-def sendLogEmail():
-    with open(txt_path, 'r', encoding="utf_8") as file:
-            data = file.readlines()
-    #Cleansing and formatting data
-    for i in data:
-        i = (i[0:len(i)-2])
+        if input_type == "user":
+            text = (" (" + current_time + ") | " + "\U0001F464" + ": " + input)
+            file.write(text)
+            file.write('\n')
+        elif input_type == "bot":
+            text = ("(" + current_time + ") | " + "\U0001F916" + ": " + input)
+            file.write(text)
+            file.write('\n')
     
-    #Sending data
-    
-    for i in data:
-        print(i)
+    return text
 
-""" 
-APPLICATION PROGRESSION PLAN
-User functionality :
-1. choice of what main question to start with
-2. give input 
-3. retrieve highest possible relevency response for followup questions under that category
-4. option to move onto the next main question or back a question, or to retrieve the next most relevant followup question
-- checkbox of audio representation or not
+def read_Log():
+    text_file = io.open(txt_path, mode="r", encoding="utf-8")
+    log_text = text_file.read()
+    text_file.close()
 
-Educator functionality :
-1. can add followup questions to the database or update tags of existing ones
-2. can flag to remove or existing questions
-"""
-
-# Fong additions
-# validation - capture those errors 
-# explore capturing the inputs and questions each session and send a log to the class teacher#
+    return log_text

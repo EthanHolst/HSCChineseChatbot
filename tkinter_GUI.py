@@ -20,6 +20,7 @@ app.title("HSC Chinese Chatbot - Log In")
 class globalIDS():
     current_screen = 0
     userID = 0
+    current_category = 0
 
 def login_screen():
     frame_1 = customtkinter.CTkFrame(master=app)
@@ -360,6 +361,9 @@ def chatbot_screen():
     home_screen.grid_rowconfigure(0, weight=1)
 
     def start_chatbot():
+        Main.clear_existing_log()
+        globalIDS.current_category = 0
+
         btn_start.destroy()
         btn_change_details.configure(state=DISABLED)
 
@@ -367,15 +371,30 @@ def chatbot_screen():
         opt_categories.place(relx=0.5, rely=0.5, anchor=CENTER)
 
     def category_selection(choice):
+        globalIDS.current_category = choice[0]
+
         lbl_categories.destroy()
         opt_categories.destroy()
 
-        initialQuestion = Main.retrieveOriginalQes(choice[0])
-        box_textbox.insert(END, initialQuestion)
-        box_textbox.grid(row=0, column=0, columnspan=1, pady=20, padx=20)
+        initial_log = Main.createLog("bot", Main.retrieveOriginalQes(choice[0]))
+
+        box_textbox.insert(END, initial_log)
+        box_textbox.grid(row=0, column=0, columnspan=3, pady=(20, 10), padx=(20, 0))
         box_textbox.configure(state=DISABLED)
 
-        inp_chatbot.grid(row=8, column=0, columnspan=1, pady=20, padx=40, sticky="we")
+        inp_chatbot.grid(row=8, columnspan=3, column=0, pady=(10, 20), padx=(20, 5), sticky="we")
+        btn_input.grid(row=8, columnspan=1, column=3, pady=(10, 20), padx=(5, 20), sticky="we")
+        sb_vertical.grid(row=0, column=3, pady=20, padx=(0, 20))
+
+    def user_input():
+        Main.createLog("user", inp_chatbot.get())
+        Main.createLog("bot", Main.followupApproximation(inp_chatbot.get(), globalIDS.current_category))
+
+        box_textbox.configure(state=NORMAL)
+        box_textbox.insert(END, Main.read_Log())
+        box_textbox.configure(state=DISABLED)
+
+        inp_chatbot.configure(text="")
 
     def event_chatbot():
         pass
@@ -395,8 +414,7 @@ def chatbot_screen():
     frame_chatbot.grid(row=0, column=1, sticky="nswe", padx=20, pady=20)
     frame_chatbot.rowconfigure((0, 1, 2, 3), weight=1)
     frame_chatbot.rowconfigure(7, weight=10)
-    frame_chatbot.columnconfigure((0, 1), weight=1)
-    frame_chatbot.columnconfigure(2, weight=0)
+    frame_chatbot.columnconfigure((0, 1, 2, 3), weight=1)
 
     btn_start = customtkinter.CTkButton(master=frame_chatbot, text="Start practice bot!", command=start_chatbot, height=30, text_font=('Arial',8), fg_color="#395e9c", text_color="#E5E5E5")
     btn_start.place(relx=0.5, rely=0.5, anchor=CENTER)
@@ -421,7 +439,7 @@ def chatbot_screen():
                                         command=event_chatbot,
                                         state=DISABLED)
     btn_chatbot.grid(row=2, column=0, pady=10, padx=20)
-
+    
     btn_change_details = customtkinter.CTkButton(master=frame_menu,
                                                 text="Change details",
                                                 fg_color=("gray75", "gray30"),
@@ -431,11 +449,14 @@ def chatbot_screen():
     box_textbox = Text(master=frame_chatbot,
                         background="gray30", 
                         foreground="#fff",
-                        font= ('Roboto Medium', 16))
+                        font= ('Roboto Medium', 13))
 
     inp_chatbot = customtkinter.CTkEntry(master=frame_chatbot,
                                             width=120,
                                             placeholder_text="Input")
+
+    btn_input = customtkinter.CTkButton(master=frame_chatbot, text="GO!", command=user_input, height=30, text_font=('Arial',8), fg_color="#395e9c", text_color="#E5E5E5")
+    sb_vertical = Scrollbar(frame_chatbot, orient=VERTICAL )
 
     if globalIDS.current_screen == 0:
             btn_chatbot.configure(state=DISABLED, fg_color="#395e9c")
