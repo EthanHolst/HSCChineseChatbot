@@ -1,13 +1,13 @@
-import tkinter as tk
-import customtkinter
 from tkinter import *
+import customtkinter
 import re
 
 import classMethods
-import globals
+import Main
 
-globals.initialise()
-userID = globals.num
+# import globals
+# globals.initialise()
+# global_userID = globals.num
 
 customtkinter.set_appearance_mode("dark") 
 customtkinter.set_default_color_theme("dark-blue")
@@ -16,6 +16,10 @@ app = customtkinter.CTk()
 app.geometry("400x580")
 app.resizable(False, False)
 app.title("HSC Chinese Chatbot - Log In")
+
+class globalIDS():
+    current_screen = 0
+    userID = 0
 
 def login_screen():
     frame_1 = customtkinter.CTkFrame(master=app)
@@ -27,9 +31,9 @@ def login_screen():
         else:
             account_found = classMethods.login(inp_username.get(), inp_password.get())
             if account_found == True:
+                globalIDS.userID = classMethods.retrieve_userID(inp_username.get())
                 app.withdraw()
                 chatbot_screen()
-                globals.num = classMethods.retrieve_userID(inp_username.get())
             else:
                 lbl_error.configure(text="Account not found, please try again")
                 inp_username.delete(0, "end")
@@ -73,16 +77,16 @@ def signup_screen():
     
     def button_signup():
         regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
-        if(re.fullmatch(regex, inp_email.get())):
+        if(re.fullmatch(regex, inp_email.get()) or ' ' in inp_username.get() == True or ' ' in inp_password.get() == True):
             if classMethods.signup(inp_email.get(), inp_username.get(), inp_password.get()) == False:
+                globalIDS.userID = classMethods.retrieve_userID(inp_username.get())
                 signupscreen.withdraw()
                 secondary_signup_screen()
-                print(classMethods.retrieve_userID(inp_username.get()))
-                globals.num = classMethods.retrieve_userID(inp_username.get())
             else:
                 lbl_error.configure(text="Username or email already exists")
         else:
-            lbl_error.configure(text="Please enter a valid email")
+            lbl_error.configure(text="Please enter a valid email or remove spaces")
+
     lbl_signup = customtkinter.CTkLabel(master=frame_1, text="Sign Up", text_font=('Arial',15))
     lbl_signup.place(relx=0.5, rely=0.3, anchor=CENTER)
 
@@ -105,6 +109,7 @@ def signup_screen():
     btn_login.place(relx=0.5, rely=0.9, anchor=CENTER)
 
 def secondary_signup_screen():
+    print(globalIDS.userID)
     secondary_signup = customtkinter.CTkToplevel(master=app)
     secondary_signup.geometry("400x580")
     secondary_signup.resizable(False, False)
@@ -149,11 +154,10 @@ def secondary_signup_screen():
         school = classMethods.retrieve_schoolID(opt_schools.get())
         if account_type == "Student":
             teacher = classMethods.retrieve_userID(opt_teachers.get())
-            classMethods.signup_secondary(account_type, school, teacher)
+            classMethods.signup_secondary(globalIDS.userID, account_type, school, teacher)
         else:
-            classMethods.signup_secondary(account_type, school, 0)
+            classMethods.signup_secondary(globalIDS.userID, account_type, school, 0)
         
-        globals.num = 0
         app.deiconify()
         secondary_signup.destroy()
 
@@ -202,33 +206,21 @@ def secondary_signup_screen():
     home_screen.grid_columnconfigure(1, weight=1)
     home_screen.grid_rowconfigure(0, weight=1)
 
-    global current_screen
-    current_screen = 0
-
-    global chatbot_online
-    chatbot_online = False
     
     # ===== FRAME - MENU =====
     def event_chatbot():
-        global current_screen
-        global chatbot_online
-
-        if current_screen == 1 and chatbot_online == False:
-            current_screen = 0
+        if globalIDS.current_screen == 1:
+            globalIDS.current_screen = 0
 
             btn_chatbot.configure(state=DISABLED, fg_color="#395e9c")
             btn_change_details.configure(state=NORMAL, fg_color="#3d3d3d")
 
     def event_change_account_details():
-        global current_screen
-        global chatbot_online
-
-        if current_screen == 0 and chatbot_online == False:
-            current_screen = 1
+        if globalIDS.current_screen == 0:
+            globalIDS.current_screen = 1
 
             btn_change_details.configure(state=DISABLED, fg_color="#395e9c")
             btn_chatbot.configure(state=NORMAL, fg_color="#3d3d3d")
-            # frame_chatbot.grid_remove()
             sc_details()
 
     frame_menu = customtkinter.CTkFrame(master=home_screen, width=180, corner_radius=0)
@@ -324,8 +316,7 @@ def secondary_signup_screen():
             else:
                 classMethods.signup_secondary(account_type, school, 0)
             
-            global current_screen
-            current_screen = 0
+            globalIDS.current_screen = 0
             btn_chatbot.configure(state=DISABLED, fg_color="#395e9c")
             btn_change_details.configure(state=NORMAL, fg_color="#3d3d3d")
             frame_details.destroy()
@@ -358,11 +349,8 @@ def secondary_signup_screen():
         lbl_error = customtkinter.CTkLabel(master=frame_details, text="", text_font=('Arial',10))
         lbl_error.place(relx=0.5, rely=0.9, anchor=CENTER)
 
-global current_screen
-current_screen = 0
-
 def chatbot_screen():
-    current_screen = 0
+    globalIDS.current_screen = 0
 
     home_screen = customtkinter.CTkToplevel(master=app)
     home_screen.geometry("780x520")
@@ -370,6 +358,24 @@ def chatbot_screen():
     home_screen.title("HSC Chinese Chatbot - Main Menu")
     home_screen.grid_columnconfigure(1, weight=1)
     home_screen.grid_rowconfigure(0, weight=1)
+
+    def start_chatbot():
+        btn_start.destroy()
+        btn_change_details.configure(state=DISABLED)
+
+        lbl_categories.place(relx=0.5, rely=0.2, anchor=CENTER)
+        opt_categories.place(relx=0.5, rely=0.5, anchor=CENTER)
+
+    def category_selection(choice):
+        lbl_categories.destroy()
+        opt_categories.destroy()
+
+        initialQuestion = Main.retrieveOriginalQes(choice[0])
+        box_textbox.insert(END, initialQuestion)
+        box_textbox.grid(row=0, column=0, columnspan=1, pady=20, padx=20)
+        box_textbox.configure(state=DISABLED)
+
+        inp_chatbot.grid(row=8, column=0, columnspan=1, pady=20, padx=40, sticky="we")
 
     def event_chatbot():
         pass
@@ -380,10 +386,29 @@ def chatbot_screen():
 
     frame_menu = customtkinter.CTkFrame(master=home_screen, width=180, corner_radius=0)
     frame_menu.grid(row=0, column=0, sticky="nswe")
-    frame_menu.grid_rowconfigure(0, minsize=10)
-    frame_menu.grid_rowconfigure(5, weight=1)
-    frame_menu.grid_rowconfigure(8, minsize=20)  
-    frame_menu.grid_rowconfigure(11, minsize=10)
+    # frame_menu.grid_rowconfigure(0, minsize=10)
+    # frame_menu.grid_rowconfigure(5, weight=1)
+    # frame_menu.grid_rowconfigure(8, minsize=20)  
+    # frame_menu.grid_rowconfigure(11, minsize=10)
+
+    frame_chatbot = customtkinter.CTkFrame(master=home_screen)
+    frame_chatbot.grid(row=0, column=1, sticky="nswe", padx=20, pady=20)
+    frame_chatbot.rowconfigure((0, 1, 2, 3), weight=1)
+    frame_chatbot.rowconfigure(7, weight=10)
+    frame_chatbot.columnconfigure((0, 1), weight=1)
+    frame_chatbot.columnconfigure(2, weight=0)
+
+    btn_start = customtkinter.CTkButton(master=frame_chatbot, text="Start practice bot!", command=start_chatbot, height=30, text_font=('Arial',8), fg_color="#395e9c", text_color="#E5E5E5")
+    btn_start.place(relx=0.5, rely=0.5, anchor=CENTER)
+
+    lbl_categories = customtkinter.CTkLabel(master=frame_chatbot, text="Please select practice category", text_font=('Arial',15, "bold"))
+
+    categories = Main.retrieveCategories()
+    opt_categories= customtkinter.CTkOptionMenu(master=frame_chatbot,
+                                        values=categories,
+                                        command=category_selection,
+                                        bg_color="#292929",
+                                        width=220)
 
     lbl_title = customtkinter.CTkLabel(master=frame_menu,
                                                 text="HSC 中文聊天机",
@@ -403,36 +428,27 @@ def chatbot_screen():
                                                 command=event_change_account_details)
     btn_change_details.grid(row=3, column=0, pady=10, padx=20)
 
-    frame_chatbot = customtkinter.CTkFrame(master=home_screen)
-    frame_chatbot.grid(row=0, column=1, sticky="nswe", padx=20, pady=20)
-    frame_chatbot.rowconfigure((0, 1, 2, 3), weight=1)
-    frame_chatbot.rowconfigure(7, weight=10)
-    frame_chatbot.columnconfigure((0, 1), weight=1)
-    frame_chatbot.columnconfigure(2, weight=0)
-
     box_textbox = Text(master=frame_chatbot,
-                wrap='word',
-                state='disabled',background="gray30", 
-                foreground="green")
-    box_textbox.grid(row=0, column=0, columnspan=1, pady=20, padx=20)
+                        background="gray30", 
+                        foreground="#fff",
+                        font= ('Roboto Medium', 16))
 
     inp_chatbot = customtkinter.CTkEntry(master=frame_chatbot,
                                             width=120,
                                             placeholder_text="Input")
-    inp_chatbot.grid(row=8, column=0, columnspan=1, pady=20, padx=40, sticky="we")
 
-    if current_screen == 0:
+    if globalIDS.current_screen == 0:
             btn_chatbot.configure(state=DISABLED, fg_color="#395e9c")
             btn_change_details.configure(state=NORMAL, fg_color="#3d3d3d")
     
-    if current_screen == 1:
+    if globalIDS.current_screen == 1:
         btn_change_details.configure(state=DISABLED, fg_color="#395e9c")
         btn_chatbot.configure(state=NORMAL, fg_color="#3d3d3d")
 
     home_screen.mainloop()
 
 def details_screen():
-    current_screen = 1
+    globalIDS.current_screen = 1
 
     home_screen = customtkinter.CTkToplevel(master=app)
     home_screen.geometry("780x520")
@@ -493,7 +509,7 @@ def details_screen():
             opt_schools.configure(state=DISABLED)
             if opt_accountType.get() == "Student":
                 opt_teachers.place(relx=0.5, rely=0.6, anchor=CENTER)
-                opt_teachers.configure(values=classMethods.retrieve_teachers(choice), state=NORMAL)
+                opt_teachers.configure(values=classMethods.retrieve_teachers(choice, globalIDS.userID), state=NORMAL)
             else:
                 btn_signup.place(relx=0.5, rely=0.8, anchor=CENTER)
                 lbl_error.configure(text="")
@@ -515,12 +531,10 @@ def details_screen():
         school = classMethods.retrieve_schoolID(opt_schools.get())
         if account_type == "Student":
             teacher = classMethods.retrieve_userID(opt_teachers.get())
-            classMethods.signup_secondary(account_type, school, teacher)
+            classMethods.signup_secondary(globalIDS.userID, account_type, school, teacher)
         else:
-            classMethods.signup_secondary(account_type, school, 0)
+            classMethods.signup_secondary(globalIDS.userID, account_type, school, 0)
         
-        global current_screen
-        current_screen = 0
         home_screen.destroy()
         chatbot_screen()
 
@@ -553,11 +567,11 @@ def details_screen():
     lbl_error = customtkinter.CTkLabel(master=frame_details, text="", text_font=('Arial',10))
     lbl_error.place(relx=0.5, rely=0.9, anchor=CENTER)
 
-    if current_screen == 0:
+    if globalIDS.current_screen == 0:
         btn_chatbot.configure(state=DISABLED, fg_color="#395e9c")
         btn_change_details.configure(state=NORMAL, fg_color="#3d3d3d")
     
-    if current_screen == 1:
+    if globalIDS.current_screen == 1:
         btn_change_details.configure(state=DISABLED, fg_color="#395e9c")
         btn_chatbot.configure(state=NORMAL, fg_color="#3d3d3d")
 

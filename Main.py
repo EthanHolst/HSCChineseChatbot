@@ -153,4 +153,3 @@ Educator functionality :
 # Fong additions
 # validation - capture those errors 
 # explore capturing the inputs and questions each session and send a log to the class teacher#
-

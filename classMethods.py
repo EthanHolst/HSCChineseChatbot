@@ -1,11 +1,9 @@
 import sqlite3
 import os
 
-import globals
-import Main
-
-globals.initialise()
-userID = globals.num
+# import globals
+# globals.initialise()
+# userID = globals.num
 
 path = os.path.dirname(os.path.abspath(__file__))
 DBpath = os.path.join(path, 'QuestionDatabase.db')
@@ -19,16 +17,6 @@ def addFollowup(Text, Cat):
 
     cursor.execute("INSERT INTO FollowupQuestions (QuestionID, QuestionText, Category) VALUES (?, ?, ?)", (QuesID, Text, Cat))
     conn.commit()
-    cursor.close()
-
-# unfinished (not working)
-def removeFollowup(QuestionID):
-    conn = sqlite3.connect(DBpath)
-    cursor = conn.cursor() 
-
-    code = ('DELETE FROM FollowupQuestions WHERE QuestionID = {id}').format(id = QuestionID)
-    cursor.execute(code)
-
     cursor.close()
 
 def login(username, password):
@@ -46,11 +34,7 @@ def login(username, password):
             break
         i = i + 1
     
-    cursor.execute(('SELECT AccountID FROM Accounts WHERE Username = "{id}"').format(id = accounts[i][0]))
-    login_ID = cursor.fetchall()
     cursor.close()
-
-    globals.num = login_ID
     return accountFound
     
 def signup(email, username, password):
@@ -82,13 +66,13 @@ def signup(email, username, password):
 
     return accountFound
 
-def signup_secondary(account_type, schoolID, teacher):
+def signup_secondary(userID, account_type, schoolID, teacher):
         conn = sqlite3.connect(DBpath)
         cursor = conn.cursor() 
         if teacher != 0:
-            cursor.execute(("UPDATE Accounts SET AccountType = '{AccountType}', School = {schID} , TeacherID = {tchID} WHERE AccountID = {id}").format(id = globals.num, AccountType = account_type, schID = schoolID, tchID = teacher))
+            cursor.execute(("UPDATE Accounts SET AccountType = '{AccountType}', School = {schID} , TeacherID = {tchID} WHERE AccountID = {id}").format(id = userID, AccountType = account_type, schID = schoolID, tchID = teacher))
         else:
-            cursor.execute(("UPDATE Accounts SET AccountType = '{AccountType}', School = {schID} WHERE AccountID = {id}").format(id = globals.num, AccountType = account_type, schID = schoolID))
+            cursor.execute(("UPDATE Accounts SET AccountType = '{AccountType}', School = {schID} WHERE AccountID = {id}").format(id = userID, AccountType = account_type, schID = schoolID))
         conn.commit()
         cursor.close()
 
@@ -106,13 +90,13 @@ def retrieve_schools():
         
     return schools_clean
 
-def retrieve_teachers(schoolName):
+def retrieve_teachers(schoolName, userID):
     connect = sqlite3.connect(DBpath)
     cursor = connect.cursor()
     cursor.execute(('SELECT SchoolID FROM Schools WHERE SchoolName = "{name}"').format(name=schoolName))
     schoolID = cursor.fetchall()
 
-    cursor.execute(('SELECT Username FROM Accounts WHERE School = {id} AND AccountType = "Teacher"').format(id = schoolID[0][0]))
+    cursor.execute(('SELECT Username FROM Accounts WHERE School = {schID} AND AccountType = "Teacher" AND AccountID != {userID}').format(schID = schoolID[0][0], userID = userID))
     teachers = cursor.fetchall()
     cursor.close()
 
