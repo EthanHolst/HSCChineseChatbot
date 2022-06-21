@@ -119,12 +119,12 @@ def createLog(input_type, input):
     with open(txt_path, 'a', encoding="utf_8") as file:
         if input_type == "user":
             text = (" (" + current_time + ") | " + "\U0001F464" + ": " + input)
-            file.write(text)
             file.write('\n')
+            file.write(text)
         elif input_type == "bot":
-            text = ("(" + current_time + ") | " + "\U0001F916" + ": " + input)
-            file.write(text)
+            text = (" (" + current_time + ") | " + "\U0001F916" + ": " + input)
             file.write('\n')
+            file.write(text)
     
     return text
 

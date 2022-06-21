@@ -4,6 +4,7 @@ import re
 
 import classMethods
 import Main
+import emailClient
 
 # import globals
 # globals.initialise()
@@ -379,25 +380,34 @@ def chatbot_screen():
         initial_log = Main.createLog("bot", Main.retrieveOriginalQes(choice[0]))
 
         box_textbox.insert(END, initial_log)
-        box_textbox.grid(row=0, column=0, columnspan=3, pady=(20, 10), padx=(20, 0))
+        box_textbox.grid(row=0, column=0, columnspan=2, pady=(20, 10), padx=20)
         box_textbox.configure(state=DISABLED)
 
-        inp_chatbot.grid(row=8, columnspan=3, column=0, pady=(10, 20), padx=(20, 5), sticky="we")
-        btn_input.grid(row=8, columnspan=1, column=3, pady=(10, 20), padx=(5, 20), sticky="we")
-        sb_vertical.grid(row=0, column=3, pady=20, padx=(0, 20))
+        inp_chatbot.grid(row=8, columnspan=1, column=0, pady=(10, 20), padx=(20, 5), sticky="we")
+        btn_input.grid(row=8, columnspan=1, column=1, pady=(10, 20), padx=(5, 20), sticky="we")
+        btn_end_chatbot.grid(row=6, column=0, pady=10, padx=20)
 
     def user_input():
         Main.createLog("user", inp_chatbot.get())
         Main.createLog("bot", Main.followupApproximation(inp_chatbot.get(), globalIDS.current_category))
 
         box_textbox.configure(state=NORMAL)
+        box_textbox.delete("1.0","end")
         box_textbox.insert(END, Main.read_Log())
         box_textbox.configure(state=DISABLED)
 
-        inp_chatbot.configure(text="")
+        inp_chatbot.delete(0, 'end')
+        inp_chatbot.focus()
 
     def event_chatbot():
         pass
+
+    def event_end_chatbot():
+        pass
+        emailClient.send_log_to_teacher(globalIDS.userID)
+        home_screen.destroy()
+        chatbot_screen()
+
 
     def event_change_account_details():
         home_screen.destroy()
@@ -405,16 +415,17 @@ def chatbot_screen():
 
     frame_menu = customtkinter.CTkFrame(master=home_screen, width=180, corner_radius=0)
     frame_menu.grid(row=0, column=0, sticky="nswe")
-    # frame_menu.grid_rowconfigure(0, minsize=10)
-    # frame_menu.grid_rowconfigure(5, weight=1)
-    # frame_menu.grid_rowconfigure(8, minsize=20)  
-    # frame_menu.grid_rowconfigure(11, minsize=10)
+    frame_menu.grid_rowconfigure(0, minsize=10)
+    frame_menu.grid_rowconfigure(5, weight=1)
+    frame_menu.grid_rowconfigure(8, minsize=20)  
+    frame_menu.grid_rowconfigure(11, minsize=10)
 
     frame_chatbot = customtkinter.CTkFrame(master=home_screen)
     frame_chatbot.grid(row=0, column=1, sticky="nswe", padx=20, pady=20)
     frame_chatbot.rowconfigure((0, 1, 2, 3), weight=1)
     frame_chatbot.rowconfigure(7, weight=10)
-    frame_chatbot.columnconfigure((0, 1, 2, 3), weight=1)
+    frame_chatbot.columnconfigure(0, weight=1)
+    frame_chatbot.columnconfigure(1, weight=0)
 
     btn_start = customtkinter.CTkButton(master=frame_chatbot, text="Start practice bot!", command=start_chatbot, height=30, text_font=('Arial',8), fg_color="#395e9c", text_color="#E5E5E5")
     btn_start.place(relx=0.5, rely=0.5, anchor=CENTER)
@@ -453,10 +464,14 @@ def chatbot_screen():
 
     inp_chatbot = customtkinter.CTkEntry(master=frame_chatbot,
                                             width=120,
-                                            placeholder_text="Input")
+                                            placeholder_text="")
 
-    btn_input = customtkinter.CTkButton(master=frame_chatbot, text="GO!", command=user_input, height=30, text_font=('Arial',8), fg_color="#395e9c", text_color="#E5E5E5")
-    sb_vertical = Scrollbar(frame_chatbot, orient=VERTICAL )
+    btn_input = customtkinter.CTkButton(master=frame_chatbot, text="INPUT", command=user_input, height=30, text_font=('Arial',8), fg_color="#395e9c", text_color="#E5E5E5")
+
+    btn_end_chatbot = customtkinter.CTkButton(master=frame_menu,
+                                        text="End Chatbot",
+                                        fg_color="#395e9c",
+                                        command=event_end_chatbot,)
 
     if globalIDS.current_screen == 0:
             btn_chatbot.configure(state=DISABLED, fg_color="#395e9c")

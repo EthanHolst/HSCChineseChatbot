@@ -1,17 +1,16 @@
-import win32com.client as win32
 import sqlite3
 import os
 from datetime import datetime
-import globals
-
-globals.initialise()
-userID = globals.num
+import smtplib
+from email.mime.text import MIMEText
+SMTP_SERVER = "smtp.mail.yahoo.com"
+SMTP_PORT = 587
 
 path = os.path.dirname(os.path.abspath(__file__))
 DBpath = os.path.join(path, 'QuestionDatabase.db')
 txt_path = os.path.join(path, 'chatLog.txt')
 
-def send_log_to_teacher():
+def send_log_to_teacher(userID):
     connect = sqlite3.connect(DBpath)
     cursor = connect.cursor() 
 
@@ -33,14 +32,24 @@ def send_log_to_teacher():
 
     cursor.close()
 
-    to = teacherEmail[0][0]
+    co_msg = "Please find the attatched log below"
+    EMAIL_FROM = "hscchinesechatbot@yahoo.com"
+    EMAIL_TO = teacherEmail[0][0]
+    SMTP_USERNAME = "hscchinesechatbot@yahoo.com"
+    SMTP_PASSWORD = "fqrwncqrmuqghmtn"
+    EMAIL_SUBJECT = "{user}\'s log from session ({date})".format(user = username, date = current_time)
+    msg = MIMEText(co_msg)
+    msg['Subject'] = EMAIL_SUBJECT + ""
+    msg['From'] = EMAIL_FROM 
+    msg['To'] = EMAIL_TO
+    msg.attach(txt_path)
+    debuglevel = True
+    mail = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
+    mail.set_debuglevel(debuglevel)
+    mail.starttls()
+    mail.login(SMTP_USERNAME, SMTP_PASSWORD)
+    mail.sendmail(EMAIL_FROM, EMAIL_TO, msg.as_string())
+    mail.quit()
 
-    outlook = win32.Dispatch('outlook.application')
-    mail = outlook.CreateItem(0)
-    mail.Subject = "{user}\'s log from session ({date})".format(user = username, date = current_time)
-    mail.To = to 
-    mail.Attachments.Add(txt_path)
-    mail.HTMLBody = r"""
-    Please find the attatched log below
-    """
-    mail.Send()
+
+    send_log_to_teacher(3)
