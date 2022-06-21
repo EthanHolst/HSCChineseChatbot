@@ -6,10 +6,6 @@ import classMethods
 import Main
 import emailClient
 
-# import globals
-# globals.initialise()
-# global_userID = globals.num
-
 customtkinter.set_appearance_mode("dark") 
 customtkinter.set_default_color_theme("dark-blue")
 
@@ -367,6 +363,8 @@ def chatbot_screen():
 
         btn_start.destroy()
         btn_change_details.configure(state=DISABLED)
+        if classMethods.teacherVerify(globalIDS.userID) == True:
+            btn_add_question.configure(state=DISABLED)
 
         lbl_categories.place(relx=0.5, rely=0.2, anchor=CENTER)
         opt_categories.place(relx=0.5, rely=0.5, anchor=CENTER)
@@ -403,15 +401,17 @@ def chatbot_screen():
         pass
 
     def event_end_chatbot():
-        pass
         emailClient.send_log_to_teacher(globalIDS.userID)
         home_screen.destroy()
         chatbot_screen()
 
-
     def event_change_account_details():
         home_screen.destroy()
         details_screen()
+
+    def event_add_question():
+        home_screen.destroy()
+        add_questions_screen()
 
     frame_menu = customtkinter.CTkFrame(master=home_screen, width=180, corner_radius=0)
     frame_menu.grid(row=0, column=0, sticky="nswe")
@@ -419,6 +419,14 @@ def chatbot_screen():
     frame_menu.grid_rowconfigure(5, weight=1)
     frame_menu.grid_rowconfigure(8, minsize=20)  
     frame_menu.grid_rowconfigure(11, minsize=10)
+
+    if classMethods.teacherVerify(globalIDS.userID) == True:
+        btn_add_question = customtkinter.CTkButton(master=frame_menu,
+                                                    text="Add question",
+                                                    fg_color="#3d3d3d",
+                                                    state=NORMAL,
+                                                    command=event_add_question)
+        btn_add_question.grid(row=4, column=0, pady=10, padx=20)
 
     frame_chatbot = customtkinter.CTkFrame(master=home_screen)
     frame_chatbot.grid(row=0, column=1, sticky="nswe", padx=20, pady=20)
@@ -500,6 +508,10 @@ def details_screen():
     def event_change_account_details():
         pass
 
+    def event_add_question():
+        home_screen.destroy()
+        add_questions_screen()
+
     frame_menu = customtkinter.CTkFrame(master=home_screen, width=180, corner_radius=0)
     frame_menu.grid(row=0, column=0, sticky="nswe")
     frame_menu.grid_rowconfigure(0, minsize=10)
@@ -524,6 +536,13 @@ def details_screen():
                                                 fg_color=("gray75", "gray30"),
                                                 command=event_change_account_details)
     btn_change_details.grid(row=3, column=0, pady=10, padx=20)
+
+    if classMethods.teacherVerify(globalIDS.userID) == True:
+        btn_add_question = customtkinter.CTkButton(master=frame_menu,
+                                                    text="Add question",
+                                                    fg_color="#3d3d3d",
+                                                    command=event_add_question)
+        btn_add_question.grid(row=4, column=0, pady=10, padx=20)
 
     frame_details = customtkinter.CTkFrame(master=home_screen)
     frame_details.grid(row=0, column=1, sticky="nswe", padx=20, pady=20)
@@ -573,7 +592,6 @@ def details_screen():
         
         home_screen.destroy()
         chatbot_screen()
-
     
     lbl_details = customtkinter.CTkLabel(master=frame_details, text="Change Account Details", text_font=('Arial',15, "bold"))
     lbl_details.place(relx=0.5, rely=0.2, anchor=CENTER)
@@ -610,6 +628,99 @@ def details_screen():
     if globalIDS.current_screen == 1:
         btn_change_details.configure(state=DISABLED, fg_color="#395e9c")
         btn_chatbot.configure(state=NORMAL, fg_color="#3d3d3d")
+
+    home_screen.mainloop()
+
+def add_questions_screen():
+    globalIDS.current_screen = 2
+
+    home_screen = customtkinter.CTkToplevel(master=app)
+    home_screen.geometry("780x520")
+    home_screen.resizable(False, False)
+    home_screen.title("HSC Chinese Chatbot - Main Menu")
+    home_screen.grid_columnconfigure(1, weight=1)
+    home_screen.grid_rowconfigure(0, weight=1)
+
+    def event_chatbot():
+        home_screen.destroy()
+        chatbot_screen()
+
+    def event_change_account_details():
+        home_screen.destroy()
+        details_screen()
+
+    frame_menu = customtkinter.CTkFrame(master=home_screen, width=180, corner_radius=0)
+    frame_menu.grid(row=0, column=0, sticky="nswe")
+    frame_menu.grid_rowconfigure(0, minsize=10)
+    frame_menu.grid_rowconfigure(5, weight=1)
+    frame_menu.grid_rowconfigure(8, minsize=20)  
+    frame_menu.grid_rowconfigure(11, minsize=10)
+
+    lbl_title = customtkinter.CTkLabel(master=frame_menu,
+                                                text="HSC 中文聊天机",
+                                                text_font=("Roboto Medium", -16))
+    lbl_title.grid(row=1, column=0, pady=10, padx=10)
+
+    btn_chatbot = customtkinter.CTkButton(master=frame_menu,
+                                        text="Chatbot",
+                                        fg_color="#395e9c",
+                                        command=event_chatbot,
+                                        state=DISABLED)
+    btn_chatbot.grid(row=2, column=0, pady=10, padx=20)
+
+    btn_change_details = customtkinter.CTkButton(master=frame_menu,
+                                                text="Change details",
+                                                fg_color=("gray75", "gray30"),
+                                                command=event_change_account_details)
+    btn_change_details.grid(row=3, column=0, pady=10, padx=20)
+
+    if classMethods.teacherVerify(globalIDS.userID) == True:
+        btn_add_question = customtkinter.CTkButton(master=frame_menu,
+                                                    text="Add question",
+                                                    fg_color="#3d3d3d")
+        btn_add_question.grid(row=4, column=0, pady=10, padx=20)
+
+    def category_selection(choice):
+        pass
+
+    def event_add_question():
+        classMethods.addFollowup(inp_question.get(), opt_categories.get()[0])
+        inp_question.delete(0, 'end')
+
+
+    frame_add = customtkinter.CTkFrame(master=home_screen)
+    frame_add.grid(row=0, column=1, sticky="nswe", padx=20, pady=20)
+    frame_add.rowconfigure((0, 1, 2, 3), weight=1)
+    frame_add.rowconfigure(7, weight=10)
+    frame_add.columnconfigure(0, weight=0)
+
+    lbl_title = customtkinter.CTkLabel(master=frame_add, text="Create new question", text_font=('Arial',15, "bold"))
+    lbl_title.place(relx=0.5, rely=0.3, anchor=CENTER)
+    lbl_details = customtkinter.CTkLabel(master=frame_add, text="Hello admin, please ensure all inputs are in Chinese, and the category matches the question", text_font=('Arial',8))
+    lbl_details.place(relx=0.5, rely=0.37, anchor=CENTER)
+
+    categories = Main.retrieveCategories()
+    opt_categories= customtkinter.CTkOptionMenu(master=frame_add,
+                                        values=categories,
+                                        command=category_selection,
+                                        bg_color="#292929",
+                                        width=300)
+    opt_categories.place(relx=0.5, rely=0.6, anchor=CENTER)
+    
+    inp_question = customtkinter.CTkEntry(master=frame_add, 
+                                            placeholder_text="Input Question",
+                                            width=300)
+    inp_question.place(relx=0.5, rely=0.5, anchor=CENTER)
+    
+    btn_add = customtkinter.CTkButton(master=frame_add,
+                                        text="Add question",
+                                        fg_color="#395e9c",
+                                        command=event_add_question)
+    btn_add.place(relx=0.5, rely=0.7, anchor=CENTER)
+
+    btn_chatbot.configure(state=NORMAL, fg_color="#3d3d3d")
+    btn_change_details.configure(state=NORMAL, fg_color="#3d3d3d")
+    btn_add_question.configure(state=DISABLED, fg_color="#395e9c")
 
     home_screen.mainloop()
 

@@ -11,11 +11,7 @@ DBpath = os.path.join(path, 'QuestionDatabase.db')
 def addFollowup(Text, Cat):
     conn = sqlite3.connect(DBpath)
     cursor = conn.cursor() 
-    cursor.execute('SELECT COUNT(*) from FollowupQuestions')
-    cursorResult = cursor.fetchone()
-    QuesID = cursorResult[0] + 1
-
-    cursor.execute("INSERT INTO FollowupQuestions (QuestionID, QuestionText, Category) VALUES (?, ?, ?)", (QuesID, Text, Cat))
+    cursor.execute("INSERT INTO FollowupQuestions (QuestionText, Category) VALUES (?, ?)", (Text, Cat))
     conn.commit()
     cursor.close()
 
@@ -72,7 +68,7 @@ def signup_secondary(userID, account_type, schoolID, teacher):
         if teacher != 0:
             cursor.execute(("UPDATE Accounts SET AccountType = '{AccountType}', School = {schID} , TeacherID = {tchID} WHERE AccountID = {id}").format(id = userID, AccountType = account_type, schID = schoolID, tchID = teacher))
         else:
-            cursor.execute(("UPDATE Accounts SET AccountType = '{AccountType}', School = {schID} WHERE AccountID = {id}").format(id = userID, AccountType = account_type, schID = schoolID))
+            cursor.execute(("UPDATE Accounts SET AccountType = '{AccountType}', School = {schID}, TeacherID = 0 WHERE AccountID = {id}").format(id = userID, AccountType = account_type, schID = schoolID))
         conn.commit()
         cursor.close()
 
@@ -123,3 +119,17 @@ def retrieve_schoolID(schoolName):
     cursor.close()
 
     return schoolID[0][0]
+
+def teacherVerify(userID):
+    connect = sqlite3.connect(DBpath)
+    cursor = connect.cursor()
+    code1 = ('SELECT TeacherID FROM Accounts WHERE AccountID = {id}').format(id = userID)
+    cursor.execute(code1)
+    teacherID = cursor.fetchall()
+    teacherID = teacherID[0][0]
+    cursor.close()
+
+    if teacherID > 0:
+        return False
+    else:
+        return True
