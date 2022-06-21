@@ -130,7 +130,7 @@ def secondary_signup_screen():
             opt_schools.configure(state=DISABLED)
             if opt_accountType.get() == "Student":
                 opt_teachers.place(relx=0.5, rely=0.6, anchor=CENTER)
-                opt_teachers.configure(values=classMethods.retrieve_teachers(choice), state=NORMAL)
+                opt_teachers.configure(values=classMethods.retrieve_teachers(choice, globalIDS.userID), state=NORMAL)
                 lbl_teachers.place(relx=0.26, rely=0.555, anchor=CENTER)
             else:
                 btn_signup.place(relx=0.5, rely=0.8, anchor=CENTER)
